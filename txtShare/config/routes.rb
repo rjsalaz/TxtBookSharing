@@ -1,7 +1,9 @@
 Rails.application.routes.draw do
+  get '/', to: 'pages#index'
+  get 'submit', to: 'pages#submit'
 
-  resources :textbooks, only: [:index, :new, :create, :destroy]
-  root "textbooks#index"
-  # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
-
+  namespace 'api' do
+    resources :courses, only: [:index]
+    resources :textbooks, only: [:show, :create]
+  end
 end

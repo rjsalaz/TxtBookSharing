@@ -1,0 +1,83 @@
+<% content_for :title, "Home" %>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-transparent justify-content-center flex-column">
+    <div class="row mb-3">
+        <a href="/">
+            <div class="col-md-8 offset-md-2">
+                <%=image_tag("logo.png", class:"img-fluid")%>
+            </div>
+        </a>
+    </div>
+
+    <ul class="navbar-nav" style="font-family: 'Work Sans', sans-serif;">
+        <li class="nav-item active">
+            <a class="nav-link" href="/"><i class="fas fa-home"></i> Home</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="submit"><i class="fas fa-upload"></i> Submit Textbook</a>
+        </li>
+    </ul>
+</nav>
+
+<div class="container">
+    <div class="dropdown-divider mt-4 mb-5"></div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-12">
+                    <select class="form-control">
+                        <option value="-1">Please select a course.</option>
+                    </select>
+                </div>
+
+                <div class="col-12 text-center" id="result">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"
+    integrity="sha256-4iQZ6BVL4qNKlQ27TExEhBN1HFPvAvAMbFavKKosSWQ=" crossorigin="anonymous"></script>
+
+<script>
+    $.get('/api/courses', function (data) {
+        data.courses.forEach(course => {
+            $('select').append(`<option value="${course.id}">${course.name}</option>`);
+        });
+    });
+
+    $('select').on('change', function () {
+        $('#result').empty();
+
+        if (this.value != -1) {
+            $.get(`/api/textbooks/${this.value}`, function (data) {
+                if (data.textbooks.length == 0) {
+                    const courseName = $('option:selected').text().split('-')[0].trim();
+
+                    $('#result').append(`
+                    <div class="alert alert-warning mt-3" role="alert">
+                        No textbooks have been found for <strong>${courseName}</strong>.
+                    </div>`);
+                } else {
+                    data.textbooks.forEach(textbook => {
+                        const date = moment(textbook.created_at).format('MM/DD/YYYY');
+
+                        $('#result').append(`
+                        <div class="card mt-3">
+                            <div class="card-body">
+                                <p><strong>Date Submitted:</strong> ${date}</p>
+                                <p><strong>Comment:</strong> ${textbook.comment}</p>
+
+                                <a href="${textbook.download_path}" target="_blank" class="btn btn-outline-primary">Preview PDF</a>
+                                <a href="${textbook.download_path}?disposition=attachment" target="_blank" class="btn btn-outline-primary">Download PDF</a>
+                            </div>
+                        </div>`);
+                    });
+                }
+            });
+        }
+    });
+</script>

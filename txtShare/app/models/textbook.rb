@@ -1,6 +1,3 @@
 class Textbook < ApplicationRecord
-
-    mount_uploader :attachment, AttachmentUploader 
-    validates :title, presence: true 
-
+    has_one_attached :textbook_file
 end

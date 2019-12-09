@@ -1,0 +1,104 @@
+<% content_for :title, "Submit Textbook" %>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-transparent justify-content-center flex-column">
+    <div class="row mb-3">
+        <a href="/">
+            <div class="col-md-8 offset-md-2">
+                <%=image_tag("logo.png", class:"img-fluid")%>
+            </div>
+        </a>
+    </div>
+
+    <ul class="navbar-nav" style="font-family: 'Work Sans', sans-serif;">
+        <li class="nav-item text-center">
+            <a class="nav-link" href="/"><i class="fas fa-home"></i> Home</a>
+        </li>
+        <li class="nav-item active">
+            <a class="nav-link" href="submit"><i class="fas fa-upload"></i> Submit Textbook</a>
+        </li>
+    </ul>
+</nav>
+
+<div class="container">
+    <div class="dropdown-divider mt-4 mb-5"></div>
+
+    <div class="row">
+        <div class="col-8 offset-2">
+            <div class="card">
+                <div class="card-body">
+                    <div id="message">
+
+                    </div>
+
+                    <%= form_with(model: @textbook, local: true, url: "/api/textbooks") do |form|%>
+                    <div class="form-group row">
+                        <label for="inputCourse" class="col-3 col-form-label">Course:</label>
+                        <div class="col">
+                            <select class="form-control" name="course_id" id="inputCourse">
+                                <option value="-1">Please select a course.</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="textbook_file" class="col-3 col-form-label">PDF File:</label>
+                        <div class="col">
+                            <%= form.file_field :textbook_file, class: "form-control-file" %>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="inputComment" class="col-3 col-form-label">Comment (Optional):</label>
+                        <div class="col">
+                            <input type="text" class="form-control" name="comment" id="inputComment">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-block btn-outline-primary">Submit</button>
+                    <% end %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"
+    integrity="sha256-4iQZ6BVL4qNKlQ27TExEhBN1HFPvAvAMbFavKKosSWQ=" crossorigin="anonymous"></script>
+
+<script>
+    function getUrlParameter(sParam) {
+        var sPageURL = window.location.search.substring(1),
+            sURLVariables = sPageURL.split('&'),
+            sParameterName,
+            i;
+
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+
+            if (sParameterName[0] === sParam) {
+                return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+            }
+        }
+    };
+
+    $.get('/api/courses', function (data) {
+        data.courses.forEach(course => {
+            $('select').append(`<option value="${course.id}">${course.name}</option>`);
+        });
+    });
+
+    success = getUrlParameter('success');
+    if (typeof success !== 'undefined') {
+        if (success === 'true') {
+            $('#message').append(`
+            <div class="alert alert-success text-center" role="alert">
+                Your PDF has been submitted!
+            </div>`)
+        } else {
+            $('#message').append(`
+            <div class="alert alert-danger text-center" role="alert">
+                Something went wrong!
+            </div>`)
+        }
+    }
+</script>
